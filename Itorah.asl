@@ -99,7 +99,7 @@ startup
 
 	// End split
 	settings.Add("end", true, "Ending");
-	settings.SetToolTip("end", "splits in the load screen between ending cutscenes");
+	settings.SetToolTip("end", "splits when defeating Maiara");
 
 	// Optional setting to split on each load
 	settings.Add("load", false, "All Loads");
@@ -145,7 +145,6 @@ init
 			}
 
 			for (int i = 0; i <= splitsSet.GetUpperBound(0); i++) {
-				string splitName = (string)splitsSet[i, vars.id["name"]];
 				splitsSet[i, vars.id["willSplit"]] = settings[(string)splitsSet[i, vars.id["name"]]];
 			}
 			vars.Log("Initialized " + splitsSet[0, vars.id["category"]] + " splits");
