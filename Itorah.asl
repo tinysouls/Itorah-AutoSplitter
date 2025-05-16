@@ -128,6 +128,7 @@ startup
 			vars.Log("Disabling " + splitsSet[currentSplit, vars.id["tooltip"]] + " in list");
 			return true;
 		}
+		vars.Log("Found disabled split " + splitsSet[currentSplit, vars.id["tooltip"]]);	
 		return false;
 	});
 
