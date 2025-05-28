@@ -127,8 +127,7 @@ startup
 	settings.Add("load", false, "All Loads");
 	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries and Bosses");
 	
-
-	//Search for current scene and determine to split or not
+	// Search for current scene and determine to split or not
 	vars.CheckIfSplitFromScene = (Func<string, string, object[,], bool>)((value, rowKey, splitsSet) =>
 	{
 		// Find split index for current scene
@@ -159,21 +158,32 @@ startup
 		return false;
 	});
 
-}
+	// Check possible offsets for session data pointer
+	vars.CheckIsdOffsets = (Func<int>)(() =>
+	{
+		foreach (int offset in new int[] {0xF10, 0xF48})
+		{
+			if (vars.Helper.Read<int>("mono-2.0-bdwgc.dll", 0x00495A90, offset, 0x20, 0x10, 0x28, 0x10, 0x68, 0x30) == 5)
+			{
+				vars.Log("Found session data offset: " + offset);
+				return offset;
+			}
+		}
+		return 0;
+	});
 
-init
-{
 	// Find pointers for items and check amounts
 	// Based on https://github.com/Jarlyk/Grime-AutoSplitter/blob/main/Grime.asl
-	vars.UpdateBag = (Func<List<object[]>>)(() =>
+	vars.UpdateBag = (Func<IntPtr, List<object[]>>)((isdPtr) =>
 	{
-		var derefPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, 0xF20, 0x60, 0x70, 0x28, 0x10, 0x70, 0x18);
-		if (derefPtr == IntPtr.Zero)
+		var itemBagPtr = vars.Helper.Read<IntPtr>(isdPtr + 112);
+		var listPtr = vars.Helper.Read<IntPtr>(itemBagPtr + 24);
+		if (listPtr == IntPtr.Zero)
 		{
 			return null;
 		}
-		var count = vars.Helper.Read<int>(derefPtr + 24);
-		var stackPtr = vars.Helper.Read<IntPtr>(derefPtr + 16);
+		var count = vars.Helper.Read<int>(listPtr + 24);
+		var stackPtr = vars.Helper.Read<IntPtr>(listPtr + 16);
 
 		var itemPtrs = new List<IntPtr>();
 		var items = new List<object[]>();
@@ -203,7 +213,10 @@ init
 		}
 		return items;
 	});
+}
 
+init
+{
 	// Compare bags for increase in splittable items
 	vars.CheckItemIncrements = (Func<List<object[]>, List<object[]>, bool, bool>)((oldBag, currentBag, recentLoad) =>
 	{
@@ -287,6 +300,7 @@ init
 	vars.abilitySplits = vars._abilitySplits;
 	vars.bossSplits = vars._bossSplits;
 
+	vars.isdOffset = 0;
 	vars.oldBag = null;
 	vars.currentBag = null;
 	vars.trackWitch = false;
@@ -332,11 +346,17 @@ update
 		vars.cyclesSinceLoad = 0;
 	}
 
+	// Look for correct isd pointer
+	if (vars.isdOffset == 0) vars.isdOffset = vars.CheckIsdOffsets();
+
+	// Find dereferenced session data pointer
+	vars.isdPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, vars.isdOffset, 0x20, 0x10, 0x28, 0x10);
+
 	// Update bags
 	if (settings["item"])
 	{
 		vars.oldBag = vars.currentBag;
-		vars.currentBag = vars.UpdateBag();
+		vars.currentBag = vars.UpdateBag(vars.isdPtr);
 	}
 }
 
