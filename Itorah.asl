@@ -5,7 +5,7 @@ state("Itorah", "1.0.0.0")
 	bool isLoading : "mono-2.0-bdwgc.dll", 0x004A7408, 0x210, 0xBBC;
 	bool isDying : "mono-2.0-bdwgc.dll", 0x00495A90, 0xDF0, 0x18, 0x10, 0x28, 0x10, 0xAA8;
 	bool getAbility : "UnityPlayer.dll", 0x0181D048, 0xC8, 0x70, 0x30, 0x8D0, 0x208;
-	float witchHealth : "UnityPlayer.dll", 0x017DEB18, 0x0, 0x200, 0x28, 0xF4;
+	float witchHealth : "UnityPlayer.dll", 0x017DEB18, 0x0, 0x70, 0x28, 0x64;
 }
 
 startup
@@ -334,14 +334,12 @@ update
 		if (vars.cyclesSinceLoad >= 10)
 		{
 			vars.recentLoad = false;
-			vars.Log("Restarting item splits");
 		}
 	}
 
 	// Start the timer
 	if (current.isLoading && !old.isLoading)
 	{
-		vars.Log("Stopping some item splits");
 		vars.recentLoad = true;
 		vars.cyclesSinceLoad = 0;
 	}
