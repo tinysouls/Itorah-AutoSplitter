@@ -27,13 +27,13 @@ startup
 
 		{"enter", 0},
 		{"ability", 1},
-		{"boss", 2}
+		{"boss", 2},
+		{"story", 3}
 	};
 	
 	// Areas
 	settings.Add("enter", true, "Area Entry");
 	settings.SetToolTip("enter", "splits when entering an area for the first time");
-
 	vars._entrySplits = new object[,]
 	{
 		{"enterAracan", true, "Aracan", "enter", "SpiderDungeon", false},
@@ -61,7 +61,6 @@ startup
 	// Ability pickup
 	settings.Add("ability", true, "Abilities");
 	settings.SetToolTip("ability", "splits on ability pickup");
-
 	vars._abilitySplits = new object[,]
 	{
 		{"abilityHeal", true, "Heal", "ability", "SpiderDungeon", false},
@@ -77,7 +76,6 @@ startup
 	// Bosses
 	settings.Add("boss", true, "Bosses");
 	settings.SetToolTip("boss", "splits after completing a boss fight");
-
 	vars._bossSplits = new object[,]
 	{
 		{"bossForbiddenRuins", false, "Ruins Escape", "boss", "ForbiddenRuins2", false},
@@ -87,10 +85,17 @@ startup
 		{"bossFireTemple", true, "Chantico", "boss", "FireTempleBoss", false}
 	};
 
+	// Story part
+	settings.Add("story", true, "Story Parts");
+	settings.SetToolTip("story", "splits when reaching this part of the story");
+	vars._storySplits = new object[,]
+	{
+		{"storySpiderChase", true, "Start Spider Chase Sequence", "story", "fc88bdff-7f7c-4285-b0fd-61c039d6cb20", false}
+	};
+
 	// Items
 	settings.Add("item", true, "Items");
 	settings.SetToolTip("item", "splits on item collection");
-
 	vars._itemSplits = new object[,]
 	{
 		{"Pale Feather", false, "Pale Feather", "item"},
@@ -105,7 +110,7 @@ startup
 	};
 
 	// Create settings from split objects
-	vars.splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossSplits, vars._itemSplits};
+	vars.splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossSplits, vars._storySplits, vars._itemSplits};
 	foreach (object [,] splitsSet in vars.splits)
 	{
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
@@ -127,15 +132,15 @@ startup
 	settings.Add("load", false, "All Loads");
 	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries and Bosses");
 	
-	// Search for current scene and determine to split or not
-	vars.CheckIfSplitFromScene = (Func<string, string, object[,], bool>)((value, rowKey, splitsSet) =>
+	// Search for value and determine to split or not
+	vars.CheckStringSplit = (Func<string, object[,], bool>)((value, splitsSet) =>
 	{
-		// Find split index for current scene
+		// Find split index for value
 		int currentSplit = -1;
 		vars.Log("Trying " + splitsSet[0, vars.id["category"]] + " check.");
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
 		{
-			if ((string)splitsSet[i, vars.id[rowKey]] == value)
+			if ((string)splitsSet[i, vars.id["value"]] == value)
 			{
 				currentSplit = i;
 				break;
@@ -213,6 +218,19 @@ startup
 		}
 		return items;
 	});
+
+	// Search pointers list for guid matching story criteria
+	vars.FindStoryGuid = (Func<string, string>)((oldGuid) =>
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			var guidPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, 0xF30, 0x70, 48 + (i * 8), 0x10, 0x28);
+			var guid = vars.Helper.ReadString(guidPtr + 0x18);
+			if (guid == null) break;
+			if (guid.Length == 36) return guid;
+		}
+		return oldGuid;
+	});
 }
 
 init
@@ -275,7 +293,7 @@ init
 	// Set autosplits from settings
 	vars.InitializeSplits = (Action)(() =>
 	{
-		var splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossSplits};
+		var splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossSplits, vars._storySplits};
 		foreach (object [,] splitsSet in splits)
 		{
 			if (!settings[(string)splitsSet[0, vars.id["category"]]])
@@ -293,16 +311,20 @@ init
 		vars.entrySplits = splits[vars.id["enter"]];
 		vars.abilitySplits = splits[vars.id["ability"]];
 		vars.bossSplits = splits[vars.id["boss"]];
+		vars.storySplits = splits[vars.id["story"]];
 	});
 
 	// Initialize values
 	vars.entrySplits = vars._entrySplits;
 	vars.abilitySplits = vars._abilitySplits;
 	vars.bossSplits = vars._bossSplits;
+	vars.storySplits = vars._storySplits;
 
 	vars.isdOffset = 0;
 	vars.oldBag = null;
 	vars.currentBag = null;
+	vars.oldGuid = null;
+	vars.currentGuid = null;
 	vars.trackWitch = false;
 	vars.respawnLoad = false;
 	current.activeScene = null;
@@ -327,7 +349,7 @@ update
 	// Look for witch fight start
 	if (current.activeScene == "VioletGardenBoss" && current.witchHealth == 90) vars.trackWitch = true;
 
-	// Increase and check timer for edge case false autosplits
+	// Increase and check load timer for edge case false autosplits
 	if (vars.recentLoad && !current.isLoading)
 	{
 		vars.cyclesSinceLoad++;
@@ -336,8 +358,7 @@ update
 			vars.recentLoad = false;
 		}
 	}
-
-	// Start the timer
+	// Start the timer since load
 	if (current.isLoading && !old.isLoading)
 	{
 		vars.recentLoad = true;
@@ -346,7 +367,6 @@ update
 
 	// Look for correct isd pointer
 	if (vars.isdOffset == 0) vars.isdOffset = vars.CheckIsdOffsets();
-
 	// Find dereferenced session data pointer
 	vars.isdPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, vars.isdOffset, 0x20, 0x10, 0x28, 0x10);
 
@@ -355,6 +375,12 @@ update
 	{
 		vars.oldBag = vars.currentBag;
 		vars.currentBag = vars.UpdateBag(vars.isdPtr);
+	}
+	// Find story
+	if (settings["story"])
+	{
+		vars.oldGuid = vars.currentGuid;
+		vars.currentGuid = vars.FindStoryGuid(vars.oldGuid);
 	}
 }
 
@@ -379,13 +405,13 @@ split
 	if (current.isLoading && !old.isLoading && !vars.respawnLoad)
 	{
 		if (settings["load"]) return true;
-		if (settings["boss"] && vars.CheckIfSplitFromScene(current.activeScene, "value", vars.bossSplits)) return true;
+		if (settings["boss"] && vars.CheckStringSplit(current.activeScene, vars.bossSplits)) return true;
 	}
 	
 	// Check for ability pickups
 	if (current.getAbility && !old.getAbility && settings["ability"])
 	{
-		if (vars.CheckIfSplitFromScene(current.activeScene, "value", vars.abilitySplits)) return true;
+		if (vars.CheckStringSplit(current.activeScene, vars.abilitySplits)) return true;
 	}
 	
 	// Check for enter splits when leaving loads
@@ -393,8 +419,14 @@ split
 	{
 		if (!settings["load"] && settings["enter"])
 		{
-			if (vars.CheckIfSplitFromScene(current.activeScene, "value", vars.entrySplits)) return true;
+			if (vars.CheckStringSplit(current.activeScene, vars.entrySplits)) return true;
 		}
+	}
+
+	// Check for story progress
+	if (settings["story"])
+	{
+		if (vars.oldGuid != vars.currentGuid && vars.CheckStringSplit(vars.currentGuid, vars.storySplits)) return true;
 	}
 
 	// Watch final boss health after starting fight
