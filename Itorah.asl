@@ -82,7 +82,7 @@ startup
 	vars._bossStartSplits = new object[,]
 	{
 		{"bossStartVioletKnight", false, "Violet Knight Encountered", "bossStart", "7f3d008f-8f7b-475a-9ce3-3eccea39b560", false},
-		{"bossStartSpiderQueen", false, "Violet Knight Encountered", "bossStart", "7f3d008f-8f7b-475a-9ce3-3eccea39b560", false},
+		{"bossStartSpiderQueen", false, "Violet Knight Encountered", "bossStart", "98a47177-914e-41fc-8f48-8486785de15d", false},
 		{"bossStartRuinsEscape", false, "Ruins Escape Starts", "bossStart", "9bbae203-1bd2-40d9-b252-91ab89081e3f", false},
 		{"bossStartDhalia", false, "Dhalia Encountered", "bossStart", "d24e945f-3e42-4c88-9f78-b8ee966391ba", false},
 		{"bossStartTlalocanFirst", false, "First Tlalocan Boss Encountered", "bossStart", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
@@ -92,8 +92,8 @@ startup
 	vars._echoesPhaseSplits = new object[,]
 	{
 		{"bossStartEchoesP1", true, "Maiara Echoes Encountered", "bossStart", 1, false},
-		{"bossStartEchoesP2", false, "Echoes Phase 2", "bossStart", 2, false},
-		{"bossStartEchoesP3", false, "Echoes Phase 3", "bossStart", 3, false}
+		{"bossStartEchoesP2", false, "Start Echoes Phase 2", "bossStart", 2, false},
+		{"bossStartEchoesP3", false, "Start Echoes Phase 3", "bossStart", 3, false}
 	};
 
 	// Bosses killed
