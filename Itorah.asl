@@ -82,22 +82,23 @@ startup
 	vars._bossStartSplits = new object[,]
 	{
 		{"bossStartVioletKnight", false, "Violet Knight Encountered", "bossStart", "7f3d008f-8f7b-475a-9ce3-3eccea39b560", false},
-		{"bossStartSpiderQueen", false, "Violet Knight Encountered", "bossStart", "98a47177-914e-41fc-8f48-8486785de15d", false},
+		{"bossStartSpiderQueen", false, "Spider Queen Encountered", "bossStart", "98a47177-914e-41fc-8f48-8486785de15d", false},
 		{"bossStartRuinsEscape", false, "Ruins Escape Starts", "bossStart", "9bbae203-1bd2-40d9-b252-91ab89081e3f", false},
 		{"bossStartDhalia", false, "Dhalia Encountered", "bossStart", "d24e945f-3e42-4c88-9f78-b8ee966391ba", false},
 		{"bossStartTlalocanFirst", false, "First Tlalocan Boss Encountered", "bossStart", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
 		{"bossStartQuetz", false, "Quetzalcoatl Encountered", "bossStart", "ec99c8da-69a1-4cd4-9886-1c793899ea61", false},
 		{"bossStartChantico", true, "Chantico Encountered", "bossStart", "422fa91c-ab58-433b-a8cb-e9b9b2be8411", false}
 	};
+	// Using seperate array for different check
 	vars._echoesPhaseSplits = new object[,]
 	{
-		{"bossStartEchoesP1", true, "Maiara Echoes Encountered", "bossStart", 1, false},
-		{"bossStartEchoesP2", false, "Start Echoes Phase 2", "bossStart", 2, false},
-		{"bossStartEchoesP3", false, "Start Echoes Phase 3", "bossStart", 3, false}
+		{"bossStartEchoesP1", true, "Elemental Echoes Encountered", "bossStart", 1, false},
+		{"bossStartEchoesP2", false, "Elemental Echoes Phase 2", "bossStart", 2, false},
+		{"bossStartEchoesP3", false, "Elemental Echoes Phase 3", "bossStart", 3, false}
 	};
 
 	// Bosses killed
-	settings.Add("boss", true, "Bosses");
+	settings.Add("boss", true, "Boss Defeated");
 	settings.SetToolTip("boss", "splits after defeating a boss");
 	vars._bossSplits = new object[,]
 	{
@@ -109,17 +110,18 @@ startup
 		{"bossTlalocanFinal", false, "Cleanse Tlalocan", "boss", "b86ef633-ab2d-45e1-9848-f9b285414a1f", false},
 		{"bossQuetz", false, "Quetzalcoatl", "boss", "10f1de22-ab31-4e54-895c-72758407211b", false},
 		{"bossChantico", true, "Chantico", "boss", "1ca3d72f-7b6b-4d00-ba1b-575c9268987b", false},
-		{"bossEchoes", true, "Echoes", "boss", "9ef40de3-4fcf-49e8-8ca1-6f4c065cd218", false}
+		{"bossEchoes", true, "Elemental Echoes", "boss", "9ef40de3-4fcf-49e8-8ca1-6f4c065cd218", false}
 	};
 
 	// Story events
-	settings.Add("event", true, "Story Events");
+	settings.Add("event", false, "Story Events");
 	settings.SetToolTip("event", "splits when reaching this story event");
 	vars._eventSplits = new object[,]
 	{
 		{"eventSpiderChase", false, "Spider Chase Sequence Starts", "event", "fc88bdff-7f7c-4285-b0fd-61c039d6cb20", false},
 		{"eventRuinsFall", false, "Ruins Floor Collapses", "event", "88a2a429-414a-44a9-8505-ede364af9f57", false},
-		{"eventRuinsElevator", false, "Ruins Elevator Sequence Starts", "event", "e2bfac82-9533-4ab7-a4fb-2ec3bcf3f9f2", false}
+		{"eventRuinsElevator", false, "Ruins Elevator Sequence Starts", "event", "e2bfac82-9533-4ab7-a4fb-2ec3bcf3f9f2", false},
+		{"eventChanticoMeeting", false, "Ember Bastion Chantico Meeting", "event", "166503f5-cf65-4907-83a9-87ea63049315", false}
 	};
 
 	// Items
@@ -295,7 +297,8 @@ init
 	// Load the ONLY useful class with a static instance in the entire game
 	vars.Helper.TryLoad = (Func<dynamic, bool>)(loader =>
 	{
-		vars.witchHelper = loader["WitchBossBattleHelper"];
+		vars.witchHelper = loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
+		vars.loader = loader;
 		return true;
 	});
 
@@ -400,6 +403,7 @@ init
 		vars.eventSplits = splits[vars.id["event"]];
 	});
 
+	// Combine each story category for easier comparison
 	vars.CombineStorySplits = (Func<object[], List<string>>)((storySplits) =>
 	{
 		List<string> combinedSplits = new List<string>(0);
@@ -546,6 +550,7 @@ split
 
 	if (current.activeScene == "VioletGardenBoss" && settings["bossStart"])
 	{
+		if (vars.witchHelper.Static == IntPtr.Zero) vars.witchHelper = vars.loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
 		if (vars.echoesPtr == IntPtr.Zero) vars.echoesPtr = vars.Helper.Read<IntPtr>(vars.witchHelper.Static + vars.witchHelper["_instance"]);
 		if (vars.CheckEchoesPhase(vars.echoesPtr, vars.echoesPhaseSplits)) return true;
 	}
