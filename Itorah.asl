@@ -203,7 +203,7 @@ startup
 			if (splitsSet[i] == value)
 			{
 				splitsSet.RemoveAt(i);
-				//vars.Log("Removed: " + value);
+				vars.Log("Found story change");
 				break;
 			}
 		}
