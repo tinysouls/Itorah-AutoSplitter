@@ -106,7 +106,7 @@ startup
 		{"bossSpiderQueen", false, "Spider Queen", "boss", "c64d8f63-8a19-40be-8386-f3b4c35fbd91", false},
 		{"bossRuinsEscape", false, "Ruins Escape", "boss", "48339759-74ba-4e5e-a86d-2433b6e22de0", false},
 		{"bossDhalia", false, "Dhalia", "boss", "6ad6ad4f-c744-4d90-8b4d-b9cbbb8db842", false},
-		{"bossTlalocanFirst", false, "First Tlalocan Boss", "boss", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
+		{"bossTlalocanSecond", false, "Second Tlalocan Boss", "boss", "19b81504-05f0-4e0c-af96-5fcce2eb5346", false},
 		{"bossTlalocanFinal", false, "Cleanse Tlalocan", "boss", "b86ef633-ab2d-45e1-9848-f9b285414a1f", false},
 		{"bossQuetz", false, "Quetzalcoatl", "boss", "10f1de22-ab31-4e54-895c-72758407211b", false},
 		{"bossChantico", true, "Chantico", "boss", "1ca3d72f-7b6b-4d00-ba1b-575c9268987b", false},
@@ -121,6 +121,7 @@ startup
 		{"eventSpiderChase", false, "Spider Chase Sequence Starts", "event", "fc88bdff-7f7c-4285-b0fd-61c039d6cb20", false},
 		{"eventRuinsFall", false, "Ruins Floor Collapses", "event", "88a2a429-414a-44a9-8505-ede364af9f57", false},
 		{"eventRuinsElevator", false, "Ruins Elevator Sequence Starts", "event", "e2bfac82-9533-4ab7-a4fb-2ec3bcf3f9f2", false},
+		{"eventTlalocanAhui", false, "Tlalocan Ahui Meeting After First Boss", "event", "85a9b1e7-eb3a-49bc-98e1-f835d0871df3", false},
 		{"eventChanticoMeeting", false, "Ember Bastion Chantico Meeting", "event", "166503f5-cf65-4907-83a9-87ea63049315", false}
 	};
 
@@ -226,7 +227,8 @@ startup
 		foreach (int offset in new int[] {0xF30, 0xF68})
 		{
 			var attemptGuid = vars.Helper.ReadString("mono-2.0-bdwgc.dll", 0x00495A90, offset, 0x70, 0x30, 0x10, 0x28, 0x18);
-			if (attemptGuid != null && attemptGuid.Length >= 36)
+			//vars.Log(attemptGuid);
+			if (attemptGuid != null  && attemptGuid.Length >= 36)
 			{
 				vars.Log("Found story offset: " + offset);
 				return offset;
@@ -418,8 +420,6 @@ init
 		return combinedSplits;
 	});
 
-	
-
 	// Initialize values
 	vars.entrySplits = vars._entrySplits;
 	vars.abilitySplits = vars._abilitySplits;
@@ -429,7 +429,6 @@ init
 	vars.eventSplits = vars._eventSplits;
 	vars.combinedStorySplits = new List<string>();
 
-	vars.echoesPtr = IntPtr.Zero;
 	vars.checkStory = false;
 	vars.storyOffset = 0;
 	vars.isdOffset = 0;
@@ -479,7 +478,7 @@ update
 
 	// Look for correct isd and story pointers
 	if (vars.isdOffset == 0) vars.isdOffset = vars.CheckIsdOffsets();
-	if (vars.storyOffset == 0) vars.storyOffset = vars.CheckStoryOffsets();
+	if (vars.isdOffset != 0  && vars.storyOffset == 0) vars.storyOffset = vars.CheckStoryOffsets();
 	// Find dereferenced session data pointer
 	vars.isdPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, vars.isdOffset, 0x20, 0x10, 0x28, 0x10);
 
@@ -548,10 +547,12 @@ split
 		}
 	}
 
+	// Reload WitchBossBattleHelper Class if static address was not found earlier
+	// Get dereferenced instance pointer and use to check current boss phase
 	if (current.activeScene == "VioletGardenBoss" && settings["bossStart"])
 	{
 		if (vars.witchHelper.Static == IntPtr.Zero) vars.witchHelper = vars.loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
-		if (vars.echoesPtr == IntPtr.Zero) vars.echoesPtr = vars.Helper.Read<IntPtr>(vars.witchHelper.Static + vars.witchHelper["_instance"]);
+		vars.echoesPtr = vars.Helper.Read<IntPtr>(vars.witchHelper.Static + vars.witchHelper["_instance"]);
 		if (vars.CheckEchoesPhase(vars.echoesPtr, vars.echoesPhaseSplits)) return true;
 	}
 
