@@ -162,7 +162,7 @@ startup
 
 	// Optional setting to split on each load
 	settings.Add("load", false, "All Loads");
-	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries and Bosses");
+	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries");
 	
 	// Search for value and determine to split or not
 	vars.CheckStringSplit = (Func<string, object[,], bool>)((value, splitsSet) =>
