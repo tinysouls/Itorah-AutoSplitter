@@ -27,13 +27,16 @@ startup
 
 		{"enter", 0},
 		{"ability", 1},
-		{"boss", 2}
+		{"bossStart", 2},
+		{"echoesPhase", 3},
+		{"boss", 4},
+		{"event", 5}
 	};
 	
+	// Start defining splits by category
 	// Areas
 	settings.Add("enter", true, "Area Entry");
 	settings.SetToolTip("enter", "splits when entering an area for the first time");
-
 	vars._entrySplits = new object[,]
 	{
 		{"enterAracan", true, "Aracan", "enter", "SpiderDungeon", false},
@@ -44,15 +47,15 @@ startup
 		{"enterRuins", true, "Forbidden Ruins", "enter", "ForbiddenRuins2", false},
 		{"enterAbyss", true, "Green Abyss", "enter", "EarthTemple1", false},
 		{"enterCradle", true, "Cradle", "enter", "EarthTemple2", false},
-		{"enterDahlia", false, "Dahlia", "enter", "EarthTempleBoss", false},
+		{"enterDahlia", false, "Dahlia Room", "enter", "EarthTempleBoss", false},
 		{"enterIcyCaverns", false, "Icy Caverns", "enter", "WaterTemple1", false},
 		{"enterTlalocan", false, "Tlalocan", "enter", "WaterTemple2", false},
 		{"enterStormChunks", true, "Storm Chunks", "enter", "StormTemple1", false},
 		{"enterArchives", true, "Archives", "enter", "StormTemple2", false},
-		{"enterQuetzalcoatl", false, "Quetzalcoatl", "enter", "StormTempleBoss", false},
+		{"enterQuetzalcoatl", false, "Quetzalcoatl Room", "enter", "StormTempleBoss", false},
 		{"enterSmokyMountains", true, "Smoky Mountains", "enter", "FireTemple1", false},
 		{"enterEmberBastion", true, "Ember Bastion", "enter", "FireTemple2", false},
-		{"enterChantico", true, "Chantico", "enter", "FireTempleBoss", false},
+		{"enterChantico", false, "Chantico Room", "enter", "FireTempleBoss", false},
 		{"enterTempleGrounds", true, "Temple Grounds", "enter", "VioletGarden1", false},
 		{"enterTemple", true, "Temple", "enter", "VioletGarden2", false},
 		{"enterTemplePainting", true, "Temple Painting", "enter", "VioletGardenBoss", false}
@@ -61,7 +64,6 @@ startup
 	// Ability pickup
 	settings.Add("ability", true, "Abilities");
 	settings.SetToolTip("ability", "splits on ability pickup");
-
 	vars._abilitySplits = new object[,]
 	{
 		{"abilityHeal", true, "Heal", "ability", "SpiderDungeon", false},
@@ -74,23 +76,58 @@ startup
 		{"abilityFlip", true, "Flip", "ability", "FireTemple2", false}
 	};
 
-	// Bosses
-	settings.Add("boss", true, "Bosses");
-	settings.SetToolTip("boss", "splits after completing a boss fight");
+	// Boss first encountered
+	settings.Add("bossStart", true, "Boss Fight Starts");
+	settings.SetToolTip("bossStart", "splits at first start of a boss fight");
+	vars._bossStartSplits = new object[,]
+	{
+		{"bossStartVioletKnight", false, "Violet Knight", "bossStart", "7f3d008f-8f7b-475a-9ce3-3eccea39b560", false},
+		{"bossStartSpiderQueen", false, "Spider Queen", "bossStart", "98a47177-914e-41fc-8f48-8486785de15d", false},
+		{"bossStartRuinsChase", false, "Ruins Chase Starts", "bossStart", "9bbae203-1bd2-40d9-b252-91ab89081e3f", false},
+		{"bossStartDhalia", false, "Dhalia", "bossStart", "d24e945f-3e42-4c88-9f78-b8ee966391ba", false},
+		{"bossStartTlalocanFirst", false, "First Tlalocan Boss", "bossStart", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
+		{"bossStartQuetz", false, "Quetzalcoatl", "bossStart", "ec99c8da-69a1-4cd4-9886-1c793899ea61", false},
+		{"bossStartChantico", true, "Chantico", "bossStart", "422fa91c-ab58-433b-a8cb-e9b9b2be8411", false}
+	};
+	// Using seperate array for different check
+	vars._echoesPhaseSplits = new object[,]
+	{
+		{"bossStartEchoesP1", true, "Elemental Echoes", "bossStart", 1, false},
+		{"bossStartEchoesP2", false, "Elemental Echoes Phase 2", "bossStart", 2, false},
+		{"bossStartEchoesP3", false, "Elemental Echoes Phase 3", "bossStart", 3, false}
+	};
 
+	// Bosses killed
+	settings.Add("boss", true, "Boss Defeated");
+	settings.SetToolTip("boss", "splits after defeating a boss");
 	vars._bossSplits = new object[,]
 	{
-		{"bossForbiddenRuins", false, "Ruins Escape", "boss", "ForbiddenRuins2", false},
-		{"bossEarthTemple", false, "Dahlia", "boss", "EarthTempleBoss", false},
-		{"bossWaterTemple", false, "Cleanse Tlalocan", "boss", "WaterTemple2", false},
-		{"bossStormTemple", false, "Quetzalcoatl", "boss", "StormTempleBoss", false},
-		{"bossFireTemple", true, "Chantico", "boss", "FireTempleBoss", false}
+		{"bossVioletKnight", false, "Violet Knight", "boss", "56f51022-aa1e-476b-99d4-a9b94cb88925", false},
+		{"bossSpiderQueen", false, "Spider Queen", "boss", "c64d8f63-8a19-40be-8386-f3b4c35fbd91", false},
+		{"bossRuinsEscape", false, "Ruins Escape", "boss", "48339759-74ba-4e5e-a86d-2433b6e22de0", false},
+		{"bossDhalia", false, "Dhalia", "boss", "6ad6ad4f-c744-4d90-8b4d-b9cbbb8db842", false},
+		{"bossTlalocanSecond", false, "Second Tlalocan Boss", "boss", "19b81504-05f0-4e0c-af96-5fcce2eb5346", false},
+		{"bossTlalocanFinal", false, "Cleanse Tlalocan", "boss", "b86ef633-ab2d-45e1-9848-f9b285414a1f", false},
+		{"bossQuetz", false, "Quetzalcoatl", "boss", "10f1de22-ab31-4e54-895c-72758407211b", false},
+		{"bossChantico", true, "Chantico", "boss", "1ca3d72f-7b6b-4d00-ba1b-575c9268987b", false},
+		{"bossEchoes", true, "Elemental Echoes", "boss", "9ef40de3-4fcf-49e8-8ca1-6f4c065cd218", false}
+	};
+
+	// Story events
+	settings.Add("event", true, "Story Events");
+	settings.SetToolTip("event", "splits when reaching this story event");
+	vars._eventSplits = new object[,]
+	{
+		{"eventSpiderChase", false, "Spider Chase Sequence Starts", "event", "fc88bdff-7f7c-4285-b0fd-61c039d6cb20", false},
+		{"eventRuinsFall", false, "Ruins Floor Collapses", "event", "88a2a429-414a-44a9-8505-ede364af9f57", false},
+		{"eventRuinsElevator", false, "Ruins Elevator Sequence Starts", "event", "e2bfac82-9533-4ab7-a4fb-2ec3bcf3f9f2", false},
+		{"eventTlalocanAhui", false, "Tlalocan Ahui Meeting After First Boss", "event", "85a9b1e7-eb3a-49bc-98e1-f835d0871df3", false},
+		{"eventChanticoMeeting", true, "Ember Bastion Chantico Meeting", "event", "166503f5-cf65-4907-83a9-87ea63049315", false}
 	};
 
 	// Items
 	settings.Add("item", true, "Items");
 	settings.SetToolTip("item", "splits on item collection");
-
 	vars._itemSplits = new object[,]
 	{
 		{"Pale Feather", false, "Pale Feather", "item"},
@@ -105,7 +142,7 @@ startup
 	};
 
 	// Create settings from split objects
-	vars.splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossSplits, vars._itemSplits};
+	vars.splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits, vars._itemSplits};
 	foreach (object [,] splitsSet in vars.splits)
 	{
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
@@ -125,17 +162,17 @@ startup
 
 	// Optional setting to split on each load
 	settings.Add("load", false, "All Loads");
-	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries and Bosses");
+	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries");
 	
-	// Search for current scene and determine to split or not
-	vars.CheckIfSplitFromScene = (Func<string, string, object[,], bool>)((value, rowKey, splitsSet) =>
+	// Search for value and determine to split or not
+	vars.CheckStringSplit = (Func<string, object[,], bool>)((value, splitsSet) =>
 	{
-		// Find split index for current scene
+		// Find split index for value
 		int currentSplit = -1;
 		vars.Log("Trying " + splitsSet[0, vars.id["category"]] + " check.");
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
 		{
-			if ((string)splitsSet[i, vars.id[rowKey]] == value)
+			if ((string)splitsSet[i, vars.id["value"]] == value)
 			{
 				currentSplit = i;
 				break;
@@ -158,7 +195,22 @@ startup
 		return false;
 	});
 
-	// Check possible offsets for session data pointer
+	// Search list for value and return list with the value removed if it was present
+	vars.CheckStorySplit = (Func<string, List<string>, List<string>>)((value, splitsSet) =>
+	{
+		for (int i = 0; i < splitsSet.Count; i++)
+		{
+			if (splitsSet[i] == value)
+			{
+				splitsSet.RemoveAt(i);
+				//vars.Log("Removed: " + value);
+				break;
+			}
+		}
+		return splitsSet;
+	});
+
+	// Check possible offsets for correct pointer
 	vars.CheckIsdOffsets = (Func<int>)(() =>
 	{
 		foreach (int offset in new int[] {0xF10, 0xF48})
@@ -166,6 +218,20 @@ startup
 			if (vars.Helper.Read<int>("mono-2.0-bdwgc.dll", 0x00495A90, offset, 0x20, 0x10, 0x28, 0x10, 0x68, 0x30) == 5)
 			{
 				vars.Log("Found session data offset: " + offset);
+				return offset;
+			}
+		}
+		return 0;
+	});
+	vars.CheckStoryOffsets = (Func<int>)(() =>
+	{
+		foreach (int offset in new int[] {0xF30, 0xF68})
+		{
+			var attemptGuid = vars.Helper.ReadString("mono-2.0-bdwgc.dll", 0x00495A90, offset, 0x70, 0x30, 0x10, 0x28, 0x18);
+			//vars.Log(attemptGuid);
+			if (attemptGuid != null  && attemptGuid.Length >= 36)
+			{
+				vars.Log("Found story offset: " + offset);
 				return offset;
 			}
 		}
@@ -213,10 +279,53 @@ startup
 		}
 		return items;
 	});
+
+	// Search pointers list for guid matching story criteria
+	vars.FindStoryGuid = (Func<int, string, string>)((offset, oldGuid) =>
+	{
+		if (offset == 0) return null;
+		for (int i = 0; i < 8; i++)
+		{
+			var guidPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, offset, 0x70, 48 + (i * 8), 0x10, 0x28);
+			var guid = vars.Helper.ReadString(guidPtr + 0x18);
+			if (guid == null) break;
+			if (guid.Length == 36) return guid;
+		}
+		return oldGuid;
+	});
 }
 
 init
 {
+	// Load the ONLY useful class with a static instance in the entire game
+	vars.Helper.TryLoad = (Func<dynamic, bool>)(loader =>
+	{
+		vars.witchHelper = loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
+		vars.loader = loader;
+		return true;
+	});
+
+	// Split from echoes fight phase
+	vars.CheckEchoesPhase = (Func<IntPtr, object[,], bool>)((ptr, splitsSet) =>
+	{
+		if (vars.Helper.Read<int>(ptr + 0x88) != 3) return false; 
+		var currentPhase = vars.Helper.Read<int>(ptr + 0x8c);
+		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
+		{
+			if ((int)splitsSet[i, vars.id["value"]] == currentPhase)
+			{
+				if ((bool)splitsSet[i, vars.id["willSplit"]])
+				{
+					splitsSet[i, vars.id["willSplit"]] = false;
+					vars.Log("Entered echoes phase " + currentPhase);
+					return true;
+				}
+				break;
+			}
+		}
+		return false;
+	});
+
 	// Compare bags for increase in splittable items
 	vars.CheckItemIncrements = (Func<List<object[]>, List<object[]>, bool, bool>)((oldBag, currentBag, recentLoad) =>
 	{
@@ -275,7 +384,7 @@ init
 	// Set autosplits from settings
 	vars.InitializeSplits = (Action)(() =>
 	{
-		var splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossSplits};
+		var splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits};
 		foreach (object [,] splitsSet in splits)
 		{
 			if (!settings[(string)splitsSet[0, vars.id["category"]]])
@@ -292,17 +401,42 @@ init
 		}
 		vars.entrySplits = splits[vars.id["enter"]];
 		vars.abilitySplits = splits[vars.id["ability"]];
+		vars.bossStartSplits = splits[vars.id["bossStart"]];
 		vars.bossSplits = splits[vars.id["boss"]];
+		vars.eventSplits = splits[vars.id["event"]];
+	});
+
+	// Combine each story category for easier comparison
+	vars.CombineStorySplits = (Func<object[], List<string>>)((storySplits) =>
+	{
+		List<string> combinedSplits = new List<string>(0);
+		foreach (object [,] splitsSet in storySplits)
+		{
+			if (!settings[(string)splitsSet[0, vars.id["category"]]]) continue;
+			for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
+			{
+				if ((bool)splitsSet[i, vars.id["willSplit"]]) combinedSplits.Add((string)splitsSet[i, vars.id["value"]]);
+			}
+		}
+		return combinedSplits;
 	});
 
 	// Initialize values
 	vars.entrySplits = vars._entrySplits;
 	vars.abilitySplits = vars._abilitySplits;
+	vars.bossStartSplits = vars._bossStartSplits;
+	vars.echoesPhaseSplits = vars._echoesPhaseSplits;
 	vars.bossSplits = vars._bossSplits;
+	vars.eventSplits = vars._eventSplits;
+	vars.combinedStorySplits = new List<string>();
 
+	vars.checkStory = false;
+	vars.storyOffset = 0;
 	vars.isdOffset = 0;
 	vars.oldBag = null;
 	vars.currentBag = null;
+	vars.oldGuid = null;
+	vars.currentGuid = null;
 	vars.trackWitch = false;
 	vars.respawnLoad = false;
 	current.activeScene = null;
@@ -324,10 +458,10 @@ update
 	if (!current.isLoading && old.isLoading) vars.respawnLoad = false;
 	if (current.isDying) vars.respawnLoad = true;
 
-	// Look for witch fight start
+	// Look for witch fights
 	if (current.activeScene == "VioletGardenBoss" && current.witchHealth == 90) vars.trackWitch = true;
 
-	// Increase and check timer for edge case false autosplits
+	// Increase and check load timer for edge case false autosplits
 	if (vars.recentLoad && !current.isLoading)
 	{
 		vars.cyclesSinceLoad++;
@@ -336,17 +470,16 @@ update
 			vars.recentLoad = false;
 		}
 	}
-
-	// Start the timer
+	// Start the timer since load
 	if (current.isLoading && !old.isLoading)
 	{
 		vars.recentLoad = true;
 		vars.cyclesSinceLoad = 0;
 	}
 
-	// Look for correct isd pointer
+	// Look for correct isd and story pointers
 	if (vars.isdOffset == 0) vars.isdOffset = vars.CheckIsdOffsets();
-
+	if (vars.isdOffset != 0  && vars.storyOffset == 0) vars.storyOffset = vars.CheckStoryOffsets();
 	// Find dereferenced session data pointer
 	vars.isdPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, vars.isdOffset, 0x20, 0x10, 0x28, 0x10);
 
@@ -355,6 +488,12 @@ update
 	{
 		vars.oldBag = vars.currentBag;
 		vars.currentBag = vars.UpdateBag(vars.isdPtr);
+	}
+	// Find story
+	if (vars.checkStory)
+	{
+		vars.oldGuid = vars.currentGuid;
+		vars.currentGuid = vars.FindStoryGuid(vars.storyOffset, vars.oldGuid);
 	}
 }
 
@@ -366,6 +505,8 @@ start
 onStart
 {
 	vars.InitializeSplits();
+	vars.combinedStorySplits = vars.CombineStorySplits(new object[] {vars.bossStartSplits, vars.bossSplits, vars.eventSplits});
+	if (vars.combinedStorySplits.Count > 0) vars.checkStory = true;
 }
 
 isLoading
@@ -375,17 +516,16 @@ isLoading
 
 split
 {
-	// Check for boss splits when entering loads
+	// Check for loads
 	if (current.isLoading && !old.isLoading && !vars.respawnLoad)
 	{
 		if (settings["load"]) return true;
-		if (settings["boss"] && vars.CheckIfSplitFromScene(current.activeScene, "value", vars.bossSplits)) return true;
 	}
 	
 	// Check for ability pickups
 	if (current.getAbility && !old.getAbility && settings["ability"])
 	{
-		if (vars.CheckIfSplitFromScene(current.activeScene, "value", vars.abilitySplits)) return true;
+		if (vars.CheckStringSplit(current.activeScene, vars.abilitySplits)) return true;
 	}
 	
 	// Check for enter splits when leaving loads
@@ -393,21 +533,41 @@ split
 	{
 		if (!settings["load"] && settings["enter"])
 		{
-			if (vars.CheckIfSplitFromScene(current.activeScene, "value", vars.entrySplits)) return true;
+			if (vars.CheckStringSplit(current.activeScene, vars.entrySplits)) return true;
 		}
+	}
+
+	// Check for story progress
+	if (vars.checkStory)
+	{
+		if (vars.oldGuid != vars.currentGuid)
+		{
+			int oldSize = vars.combinedStorySplits.Count;
+			vars.combinedStorySplits = vars.CheckStorySplit(vars.currentGuid, vars.combinedStorySplits);
+			if (vars.combinedStorySplits.Count < oldSize) return true;
+		}
+	}
+
+	// Reload WitchBossBattleHelper Class if static address was not found earlier
+	// Get dereferenced instance pointer and use to check current boss phase
+	if (current.activeScene == "VioletGardenBoss" && settings["bossStart"])
+	{
+		if (vars.witchHelper.Static == IntPtr.Zero) vars.witchHelper = vars.loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
+		vars.echoesPtr = vars.Helper.Read<IntPtr>(vars.witchHelper.Static + vars.witchHelper["_instance"]);
+		if (vars.CheckEchoesPhase(vars.echoesPtr, vars.echoesPhaseSplits)) return true;
 	}
 
 	// Watch final boss health after starting fight
 	if (vars.trackWitch && current.witchHealth == 0)
 	{
 		vars.trackWitch = false;
-		return settings["end"];
+		if (settings["end"]) return true;
 	}
 
 	// Check for item increases
 	if (settings["item"])
 	{
-		return vars.CheckItemIncrements(vars.oldBag, vars.currentBag, vars.recentLoad);
+		if (vars.CheckItemIncrements(vars.oldBag, vars.currentBag, vars.recentLoad)) return true;
 	}
 	
 	return false;
