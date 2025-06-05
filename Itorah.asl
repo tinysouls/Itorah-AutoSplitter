@@ -47,15 +47,15 @@ startup
 		{"enterRuins", true, "Forbidden Ruins", "enter", "ForbiddenRuins2", false},
 		{"enterAbyss", true, "Green Abyss", "enter", "EarthTemple1", false},
 		{"enterCradle", true, "Cradle", "enter", "EarthTemple2", false},
-		{"enterDahlia", false, "Dahlia", "enter", "EarthTempleBoss", false},
+		{"enterDahlia", false, "Dahlia Room", "enter", "EarthTempleBoss", false},
 		{"enterIcyCaverns", false, "Icy Caverns", "enter", "WaterTemple1", false},
 		{"enterTlalocan", false, "Tlalocan", "enter", "WaterTemple2", false},
 		{"enterStormChunks", true, "Storm Chunks", "enter", "StormTemple1", false},
 		{"enterArchives", true, "Archives", "enter", "StormTemple2", false},
-		{"enterQuetzalcoatl", false, "Quetzalcoatl", "enter", "StormTempleBoss", false},
+		{"enterQuetzalcoatl", false, "Quetzalcoatl Room", "enter", "StormTempleBoss", false},
 		{"enterSmokyMountains", true, "Smoky Mountains", "enter", "FireTemple1", false},
 		{"enterEmberBastion", true, "Ember Bastion", "enter", "FireTemple2", false},
-		{"enterChantico", true, "Chantico", "enter", "FireTempleBoss", false},
+		{"enterChantico", false, "Chantico Room", "enter", "FireTempleBoss", false},
 		{"enterTempleGrounds", true, "Temple Grounds", "enter", "VioletGarden1", false},
 		{"enterTemple", true, "Temple", "enter", "VioletGarden2", false},
 		{"enterTemplePainting", true, "Temple Painting", "enter", "VioletGardenBoss", false}
@@ -77,22 +77,22 @@ startup
 	};
 
 	// Boss first encountered
-	settings.Add("bossStart", true, "Boss Encountered");
-	settings.SetToolTip("bossStart", "splits when first encountering a boss");
+	settings.Add("bossStart", true, "Boss Fight Starts");
+	settings.SetToolTip("bossStart", "splits at first start of a boss fight");
 	vars._bossStartSplits = new object[,]
 	{
-		{"bossStartVioletKnight", false, "Violet Knight Encountered", "bossStart", "7f3d008f-8f7b-475a-9ce3-3eccea39b560", false},
-		{"bossStartSpiderQueen", false, "Spider Queen Encountered", "bossStart", "98a47177-914e-41fc-8f48-8486785de15d", false},
-		{"bossStartRuinsEscape", false, "Ruins Escape Starts", "bossStart", "9bbae203-1bd2-40d9-b252-91ab89081e3f", false},
-		{"bossStartDhalia", false, "Dhalia Encountered", "bossStart", "d24e945f-3e42-4c88-9f78-b8ee966391ba", false},
-		{"bossStartTlalocanFirst", false, "First Tlalocan Boss Encountered", "bossStart", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
-		{"bossStartQuetz", false, "Quetzalcoatl Encountered", "bossStart", "ec99c8da-69a1-4cd4-9886-1c793899ea61", false},
-		{"bossStartChantico", true, "Chantico Encountered", "bossStart", "422fa91c-ab58-433b-a8cb-e9b9b2be8411", false}
+		{"bossStartVioletKnight", false, "Violet Knight", "bossStart", "7f3d008f-8f7b-475a-9ce3-3eccea39b560", false},
+		{"bossStartSpiderQueen", false, "Spider Queen", "bossStart", "98a47177-914e-41fc-8f48-8486785de15d", false},
+		{"bossStartRuinsChase", false, "Ruins Chase Starts", "bossStart", "9bbae203-1bd2-40d9-b252-91ab89081e3f", false},
+		{"bossStartDhalia", false, "Dhalia", "bossStart", "d24e945f-3e42-4c88-9f78-b8ee966391ba", false},
+		{"bossStartTlalocanFirst", false, "First Tlalocan Boss", "bossStart", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
+		{"bossStartQuetz", false, "Quetzalcoatl", "bossStart", "ec99c8da-69a1-4cd4-9886-1c793899ea61", false},
+		{"bossStartChantico", true, "Chantico", "bossStart", "422fa91c-ab58-433b-a8cb-e9b9b2be8411", false}
 	};
 	// Using seperate array for different check
 	vars._echoesPhaseSplits = new object[,]
 	{
-		{"bossStartEchoesP1", true, "Elemental Echoes Encountered", "bossStart", 1, false},
+		{"bossStartEchoesP1", true, "Elemental Echoes", "bossStart", 1, false},
 		{"bossStartEchoesP2", false, "Elemental Echoes Phase 2", "bossStart", 2, false},
 		{"bossStartEchoesP3", false, "Elemental Echoes Phase 3", "bossStart", 3, false}
 	};
@@ -114,7 +114,7 @@ startup
 	};
 
 	// Story events
-	settings.Add("event", false, "Story Events");
+	settings.Add("event", true, "Story Events");
 	settings.SetToolTip("event", "splits when reaching this story event");
 	vars._eventSplits = new object[,]
 	{
@@ -122,7 +122,7 @@ startup
 		{"eventRuinsFall", false, "Ruins Floor Collapses", "event", "88a2a429-414a-44a9-8505-ede364af9f57", false},
 		{"eventRuinsElevator", false, "Ruins Elevator Sequence Starts", "event", "e2bfac82-9533-4ab7-a4fb-2ec3bcf3f9f2", false},
 		{"eventTlalocanAhui", false, "Tlalocan Ahui Meeting After First Boss", "event", "85a9b1e7-eb3a-49bc-98e1-f835d0871df3", false},
-		{"eventChanticoMeeting", false, "Ember Bastion Chantico Meeting", "event", "166503f5-cf65-4907-83a9-87ea63049315", false}
+		{"eventChanticoMeeting", true, "Ember Bastion Chantico Meeting", "event", "166503f5-cf65-4907-83a9-87ea63049315", false}
 	};
 
 	// Items
@@ -195,6 +195,7 @@ startup
 		return false;
 	});
 
+	// Search list for value and return list with the value removed if it was present
 	vars.CheckStorySplit = (Func<string, List<string>, List<string>>)((value, splitsSet) =>
 	{
 		for (int i = 0; i < splitsSet.Count; i++)
@@ -202,7 +203,7 @@ startup
 			if (splitsSet[i] == value)
 			{
 				splitsSet.RemoveAt(i);
-				vars.Log("Removed: " + value);
+				//vars.Log("Removed: " + value);
 				break;
 			}
 		}
