@@ -178,7 +178,7 @@ startup
 
 	// Optional setting to split on each load
 	settings.Add("load", false, "All Loads");
-	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries");
+	settings.SetToolTip("load", "splits on all load screens, exclusive with Area Entries and Area Exits");
 	
 	// Search for value and determine to split or not
 	vars.CheckStringSplit = (Func<string, object[,], bool>)((value, splitsSet) =>
@@ -575,7 +575,7 @@ split
 	}
 
 	// Check the most recently loaded checkpoint to find load
-	if (settings["exit"])
+	if (!settings["load"] && settings["exit"])
 	{
 		if (vars.currentCheckpoint != vars.oldCheckpoint && vars.currentCheckpoint != null && vars.oldCheckpoint != null)
 		{
