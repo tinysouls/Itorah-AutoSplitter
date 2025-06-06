@@ -68,12 +68,12 @@ startup
 	vars._exitSplits = new object[,]
 	{
 		
-		{"exitRuins", true, "Forbidden Ruins", "exit", "ForbiddenRuins1_2cfd0392-6093-4008-b6cb-51de4abed22b", false},
+		{"exitRuins", true, "Forbidden Ruins Exit", "exit", "ForbiddenRuins1_2cfd0392-6093-4008-b6cb-51de4abed22b", false},
 		{"exitUpperLostCity", true, "Lost City Upper Exit", "exit", "EasternForrest_60a4da61-0498-4f4a-94b8-b7fce887ac72", false},
 		{"exitCradle", true, "Cradle Exit", "exit", "EarthTemple1_eed23c79-bcfe-4a37-b7b5-7ed7e2ad6b85", false},
 		{"exitLeftAbyss", true, "Green Abyss Left Exit", "exit", "WesternForrest_584c55dc-463e-407c-b102-ae322ed0dcb2", false},
 		//{"exitLeftIcyCaverns", false, "Icy Caverns Left Exit", "exit", "WaterTemple1", false},
-		{"exitArchives", true, "Archives", "exit", "StormTemple1_6a8e49ad-eeb9-4b16-9296-552611850e41", false}
+		{"exitArchives", true, "Archives", "exit", "StormTemple1_6a8e49ad-eeb9-4b16-9296-552611850e41", false},
 		{"exitStormChunks", true, "Storm Chunks Lower Exit", "exit", "WesternForrest_2ad8a48b-d415-4f9a-9567-b8d7b1641add", false}
 	};
 
@@ -158,7 +158,7 @@ startup
 	};
 
 	// Create settings from split objects
-	vars.splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits, vars._itemSplits};
+	vars.splits = new object[] {vars._entrySplits, vars._exitSplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits, vars._itemSplits};
 	foreach (object [,] splitsSet in vars.splits)
 	{
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
@@ -455,6 +455,8 @@ init
 	vars.currentBag = null;
 	vars.oldGuid = null;
 	vars.currentGuid = null;
+	vars.oldCheckpoint = null;
+	vars.currentCheckpoint = null;
 	vars.trackWitch = false;
 	vars.respawnLoad = false;
 	current.activeScene = null;
@@ -513,6 +515,12 @@ update
 		vars.oldGuid = vars.currentGuid;
 		vars.currentGuid = vars.FindStoryGuid(vars.storyOffset, vars.oldGuid);
 	}
+	// Find newest load
+	if (settings["exit"])
+	{
+		var loadingPtr = vars.Helper.Read<IntPtr>(vars.isdPtr + 0x28);
+		vars.currentCheckpoint = vars.Helper.ReadString(loadingPtr + 0x40);
+	}
 }
 
 start
@@ -563,6 +571,20 @@ split
 			int oldSize = vars.combinedStorySplits.Count;
 			vars.combinedStorySplits = vars.CheckStorySplit(vars.currentGuid, vars.combinedStorySplits);
 			if (vars.combinedStorySplits.Count < oldSize) return true;
+		}
+	}
+
+	// Check the most recently loaded checkpoint to find load
+	if (settings["exit"])
+	{
+		if (vars.currentCheckpoint != vars.oldCheckpoint && vars.currentCheckpoint != null && vars.oldCheckpoint != null)
+		{
+			vars.oldCheckpoint = vars.currentCheckpoint;
+			if (vars.CheckStringSplit(vars.currentCheckpoint, vars.exitSplits)) return true;
+		}
+		else
+		{
+			vars.oldCheckpoint = vars.currentCheckpoint;
 		}
 	}
 
