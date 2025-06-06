@@ -185,7 +185,7 @@ startup
 	{
 		// Find split index for value
 		int currentSplit = -1;
-		vars.Log("Trying " + splitsSet[0, vars.id["category"]] + " check.");
+		// vars.Log("Trying " + splitsSet[0, vars.id["category"]] + " check.");
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
 		{
 			if ((string)splitsSet[i, vars.id["value"]] == value)
@@ -196,7 +196,7 @@ startup
 		}
 		if (currentSplit == -1)
 		{
-			vars.Log("couldn't find value");
+			// vars.Log("Couldn't find value.");
 			return false;
 		}
 		// Check and disable willSplit at index
@@ -207,7 +207,7 @@ startup
 			vars.Log("Disabling " + splitsSet[currentSplit, vars.id["tooltip"]] + " in list");
 			return true;
 		}
-		vars.Log("Found disabled split " + splitsSet[currentSplit, vars.id["tooltip"]]);	
+		// vars.Log("Found disabled split " + splitsSet[currentSplit, vars.id["tooltip"]]);	
 		return false;
 	});
 
