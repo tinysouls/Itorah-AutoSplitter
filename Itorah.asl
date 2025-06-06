@@ -26,11 +26,12 @@ startup
 		{"willSplit", 5},
 
 		{"enter", 0},
-		{"ability", 1},
-		{"bossStart", 2},
-		{"echoesPhase", 3},
-		{"boss", 4},
-		{"event", 5}
+		{"exit", 1},
+		{"ability", 2},
+		{"bossStart", 3},
+		{"echoesPhase", 4},
+		{"boss", 5},
+		{"event", 6}
 	};
 	
 	// Start defining splits by category
@@ -59,6 +60,21 @@ startup
 		{"enterTempleGrounds", true, "Temple Grounds", "enter", "VioletGarden1", false},
 		{"enterTemple", true, "Temple", "enter", "VioletGarden2", false},
 		{"enterTemplePainting", true, "Temple Painting", "enter", "VioletGardenBoss", false}
+	};
+
+	// Exits
+	settings.Add("exit", true, "Area Exits");
+	settings.SetToolTip("exit", "splits when exiting an area from a specific transition for the first time");
+	vars._exitSplits = new object[,]
+	{
+		
+		{"exitRuins", true, "Forbidden Ruins", "exit", "ForbiddenRuins1_2cfd0392-6093-4008-b6cb-51de4abed22b", false},
+		{"exitUpperLostCity", true, "Lost City Upper Exit", "exit", "EasternForrest_60a4da61-0498-4f4a-94b8-b7fce887ac72", false},
+		{"exitCradle", true, "Cradle Exit", "exit", "EarthTemple1_eed23c79-bcfe-4a37-b7b5-7ed7e2ad6b85", false},
+		{"exitLeftAbyss", true, "Green Abyss Left Exit", "exit", "WesternForrest_584c55dc-463e-407c-b102-ae322ed0dcb2", false},
+		//{"exitLeftIcyCaverns", false, "Icy Caverns Left Exit", "exit", "WaterTemple1", false},
+		{"exitArchives", true, "Archives", "exit", "StormTemple1_6a8e49ad-eeb9-4b16-9296-552611850e41", false}
+		{"exitStormChunks", true, "Storm Chunks Lower Exit", "exit", "WesternForrest_2ad8a48b-d415-4f9a-9567-b8d7b1641add", false}
 	};
 
 	// Ability pickup
@@ -384,7 +400,7 @@ init
 	// Set autosplits from settings
 	vars.InitializeSplits = (Action)(() =>
 	{
-		var splits = new object[] {vars._entrySplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits};
+		var splits = new object[] {vars._entrySplits, vars._exitSplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits};
 		foreach (object [,] splitsSet in splits)
 		{
 			if (!settings[(string)splitsSet[0, vars.id["category"]]])
@@ -400,6 +416,7 @@ init
 			vars.Log("Initialized " + splitsSet[0, vars.id["category"]] + " splits");
 		}
 		vars.entrySplits = splits[vars.id["enter"]];
+		vars.exitSplits = splits[vars.id["exit"]];
 		vars.abilitySplits = splits[vars.id["ability"]];
 		vars.bossStartSplits = splits[vars.id["bossStart"]];
 		vars.bossSplits = splits[vars.id["boss"]];
@@ -423,6 +440,7 @@ init
 
 	// Initialize values
 	vars.entrySplits = vars._entrySplits;
+	vars.exitSplits = vars._exitSplits;
 	vars.abilitySplits = vars._abilitySplits;
 	vars.bossStartSplits = vars._bossStartSplits;
 	vars.echoesPhaseSplits = vars._echoesPhaseSplits;
