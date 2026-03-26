@@ -29,9 +29,8 @@ startup
 		{"exit", 1},
 		{"ability", 2},
 		{"bossStart", 3},
-		{"echoesPhase", 4},
-		{"boss", 5},
-		{"event", 6}
+		{"boss", 4},
+		{"event", 5}
 	};
 	
 	// Start defining splits by category
@@ -103,14 +102,8 @@ startup
 		{"bossStartDhalia", false, "Dhalia", "bossStart", "d24e945f-3e42-4c88-9f78-b8ee966391ba", false},
 		{"bossStartTlalocanFirst", false, "First Tlalocan Boss", "bossStart", "088a6dc9-bde2-4658-85a7-83f43f9dbfa3", false},
 		{"bossStartQuetz", false, "Quetzalcoatl", "bossStart", "ec99c8da-69a1-4cd4-9886-1c793899ea61", false},
-		{"bossStartChantico", true, "Chantico", "bossStart", "422fa91c-ab58-433b-a8cb-e9b9b2be8411", false}
-	};
-	// Using seperate array for different check
-	vars._echoesPhaseSplits = new object[,]
-	{
-		{"bossStartEchoesP1", true, "Elemental Echoes", "bossStart", 1, false},
-		{"bossStartEchoesP2", false, "Elemental Echoes Phase 2", "bossStart", 2, false},
-		{"bossStartEchoesP3", false, "Elemental Echoes Phase 3", "bossStart", 3, false}
+		{"bossStartChantico", true, "Chantico", "bossStart", "422fa91c-ab58-433b-a8cb-e9b9b2be8411", false},
+		{"bossStartEchoes", true, "Elemental Echoes", "bossStart", "00cc3a7d-3026-4c62-a03e-b52d4a46f348", false}
 	};
 
 	// Bosses killed
@@ -158,7 +151,7 @@ startup
 	};
 
 	// Create settings from split objects
-	vars.splits = new object[] {vars._entrySplits, vars._exitSplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits, vars._itemSplits};
+	vars.splits = new object[] {vars._entrySplits, vars._exitSplits, vars._abilitySplits, vars._bossStartSplits, vars._bossSplits, vars._eventSplits, vars._itemSplits};
 	foreach (object [,] splitsSet in vars.splits)
 	{
 		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
@@ -313,35 +306,6 @@ startup
 
 init
 {
-	// Load the ONLY useful class with a static instance in the entire game
-	vars.Helper.TryLoad = (Func<dynamic, bool>)(loader =>
-	{
-		vars.witchHelper = loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
-		vars.loader = loader;
-		return true;
-	});
-
-	// Split from echoes fight phase
-	vars.CheckEchoesPhase = (Func<IntPtr, object[,], bool>)((ptr, splitsSet) =>
-	{
-		if (vars.Helper.Read<int>(ptr + 0x88) != 3) return false; 
-		var currentPhase = vars.Helper.Read<int>(ptr + 0x8c);
-		for (int i = 0; i <= splitsSet.GetUpperBound(0); i++)
-		{
-			if ((int)splitsSet[i, vars.id["value"]] == currentPhase)
-			{
-				if ((bool)splitsSet[i, vars.id["willSplit"]])
-				{
-					splitsSet[i, vars.id["willSplit"]] = false;
-					vars.Log("Entered echoes phase " + currentPhase);
-					return true;
-				}
-				break;
-			}
-		}
-		return false;
-	});
-
 	// Compare bags for increase in splittable items
 	vars.CheckItemIncrements = (Func<List<object[]>, List<object[]>, bool, bool>)((oldBag, currentBag, recentLoad) =>
 	{
@@ -400,7 +364,7 @@ init
 	// Set autosplits from settings
 	vars.InitializeSplits = (Action)(() =>
 	{
-		var splits = new object[] {vars._entrySplits, vars._exitSplits, vars._abilitySplits, vars._bossStartSplits, vars._echoesPhaseSplits, vars._bossSplits, vars._eventSplits};
+		var splits = new object[] {vars._entrySplits, vars._exitSplits, vars._abilitySplits, vars._bossStartSplits, vars._bossSplits, vars._eventSplits};
 		foreach (object [,] splitsSet in splits)
 		{
 			if (!settings[(string)splitsSet[0, vars.id["category"]]])
@@ -443,7 +407,6 @@ init
 	vars.exitSplits = vars._exitSplits;
 	vars.abilitySplits = vars._abilitySplits;
 	vars.bossStartSplits = vars._bossStartSplits;
-	vars.echoesPhaseSplits = vars._echoesPhaseSplits;
 	vars.bossSplits = vars._bossSplits;
 	vars.eventSplits = vars._eventSplits;
 	vars.combinedStorySplits = new List<string>();
@@ -586,15 +549,6 @@ split
 		{
 			vars.oldCheckpoint = vars.currentCheckpoint;
 		}
-	}
-
-	// Reload WitchBossBattleHelper Class if static address was not found earlier
-	// Get dereferenced instance pointer and use to check current boss phase
-	if (current.activeScene == "VioletGardenBoss" && settings["bossStart"])
-	{
-		if (vars.witchHelper.Static == IntPtr.Zero) vars.witchHelper = vars.loader["Assembly-CSharp", "GrimbartTales.Platformer2D.SpecialEnemies.WitchBossBattleHelper"];
-		vars.echoesPtr = vars.Helper.Read<IntPtr>(vars.witchHelper.Static + vars.witchHelper["_instance"]);
-		if (vars.CheckEchoesPhase(vars.echoesPtr, vars.echoesPhaseSplits)) return true;
 	}
 
 	// Watch final boss health after starting fight
