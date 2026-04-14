@@ -555,7 +555,7 @@ split
 	if (vars.trackWitch && current.witchHealth == 0)
 	{
 		vars.trackWitch = false;
-		if (settings["end"]) return true;
+		if (!current.isLoading && settings["end"]) return true;
 	}
 
 	// Check for item increases
