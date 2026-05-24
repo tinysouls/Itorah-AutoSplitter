@@ -312,7 +312,7 @@ init
 		// Check if the bag has been loaded for the last cycles
 		if (oldBag == null || currentBag == null) return false;
 		// Stop save loading issues
-		if (oldBag.Count == 0 && (currentBag.Count != 1 || recentLoad)) return false;
+		if (recentLoad) return false;
 
 		// Use bag size to determine required checks
 		if (oldBag.Count > currentBag.Count) return false;
@@ -339,18 +339,18 @@ init
 				string itemName = (string) currentBag[i][0];
 				if (itemName != "Shards" && settings[itemName])
 				{
-					// Find pair for item when sizes are different
+					bool foundPair = false;
+					// Check names of each item in old bag to look for the match
 					for (int k = 0; k < oldBag.Count; k++)
 					{
 						if (itemName == (string) oldBag[k][0])
 						{
-							if ((int) currentBag[i][1] == (int) oldBag[k][1] + 1)
-							{
-								vars.Log("New " + itemName);
-								return true;
-							}
+							foundPair = true;
 							break;
 						}
+					}
+					if (!foundPair)
+					{
 						// The item was found in current list but not old so it was just added
 						vars.Log("First " + itemName);
 						return true;
@@ -454,7 +454,7 @@ update
 		}
 	}
 	// Start the timer since load
-	if (current.isLoading && !old.isLoading)
+	if ((current.isLoading && !old.isLoading) || (current.isDying && !old.isDying))
 	{
 		vars.recentLoad = true;
 		vars.cyclesSinceLoad = 0;
@@ -465,6 +465,11 @@ update
 	if (vars.isdOffset != 0  && vars.storyOffset == 0) vars.storyOffset = vars.CheckStoryOffsets();
 	// Find dereferenced session data pointer
 	vars.isdPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, vars.isdOffset, 0x20, 0x10, 0x28, 0x10);
+	if (vars.isdPtr == IntPtr.Zero)
+	{
+		vars.isdOffset = 0;
+		vars.storyOffset = 0;
+	}
 
 	// Update bags
 	if (settings["item"])
