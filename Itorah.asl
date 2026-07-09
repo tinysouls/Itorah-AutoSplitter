@@ -422,6 +422,7 @@ init
 	vars.currentCheckpoint = null;
 	vars.trackWitch = false;
 	vars.respawnLoad = false;
+	vars.gameStarting = true;
 	current.activeScene = null;
 	current.isLoading = true;
 	
@@ -453,6 +454,10 @@ update
 			vars.recentLoad = false;
 		}
 	}
+
+	// Check if the game has fully started in case of the game closing mid run
+	if (vars.gameStarting && current.activeScene == "TitleScreen") vars.gameStarting = false;
+
 	// Start the timer since load
 	if ((current.isLoading && !old.isLoading) || (current.isDying && !old.isDying))
 	{
@@ -465,7 +470,7 @@ update
 	if (vars.isdOffset != 0  && vars.storyOffset == 0) vars.storyOffset = vars.CheckStoryOffsets();
 	// Find dereferenced session data pointer
 	vars.isdPtr = vars.Helper.Read<IntPtr>("mono-2.0-bdwgc.dll", 0x00495A90, vars.isdOffset, 0x20, 0x10, 0x28, 0x10);
-	if (vars.isdPtr == IntPtr.Zero)
+	if (vars.isdPtr == IntPtr.Zero && !vars.recentLoad)
 	{
 		vars.isdOffset = 0;
 		vars.storyOffset = 0;
@@ -505,7 +510,13 @@ onStart
 
 isLoading
 {
+	if (vars.gameStarting) return true;
 	return current.isLoading;
+}
+
+exit
+{
+	timer.IsGameTimePaused = true;
 }
 
 split
